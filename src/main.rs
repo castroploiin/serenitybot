@@ -3,6 +3,8 @@ use serenity::utils::MessageBuilder;
 use serenity::{prelude::*, async_trait};
 use serenity::model::prelude::{Ready, ChannelId, Message, UserId};
 
+const PREFIX: &str = "?";
+
 struct Handler;
 
 #[async_trait]
@@ -15,9 +17,17 @@ impl EventHandler for Handler {
     }
 
     async fn message(&self, ctx: Context, message: Message) {
-        if message.author.id != UserId(1110103541021954148) {
-            let reply_message = MessageBuilder::new().push(format!("No {}, this is not true.", message.author.name)).build();
-            message.channel_id.say(&ctx.http, reply_message).await.expect("Could not send message");
+        for command in message.content.split(PREFIX) {
+            match command {
+                "ping" => {
+                    let mut pong_buildup = MessageBuilder::new();
+                    let real_pong = pong_buildup.push("Pong!");
+                    message.channel_id.say(&ctx.http, real_pong).await.expect("Cannot send message");
+                },
+                _ => {
+                    None;
+                },
+            }
         }
     }
 }
@@ -35,3 +45,10 @@ async fn main() {
         println!("ERROR: {:?}", error)
     }
 }
+
+
+// WORKS
+// fn main() {
+//     let f = "?ping word";
+//     dbg!(f.split("?").collect::<Vec<&str>>());
+// }
