@@ -1,8 +1,6 @@
 use serenity::model::prelude::{Message, Ready, ChannelId};
-
 use serenity::{async_trait, prelude::*};
 use serenitybot::commands;
-
 
 struct Handler;
 
@@ -18,16 +16,15 @@ impl EventHandler for Handler {
 async fn message(&self, ctx: Context, message: Message) {
         const PREFIX: &str = "?";
 
-        if !message.content.starts_with("?") {
-            return;
-        }
-        let command = &message.content.replace(PREFIX, "")[..];
-        match command {
-            "ping" => commands::pong(ctx.clone(), message.clone()).await,
-            "embed" => commands::hello_embed(ctx.clone(), message.clone()).await,
-            "some" => commands::get_input(ctx.clone(), message.clone()).await,
-            "doc" => commands::get_help(ctx.clone(), message.clone()).await,
-            _ => (),
+        if message.content.starts_with("?") {
+            let command = &message.content.replace(PREFIX, "")[..];
+            match command {
+                "ping" => commands::pong(ctx.clone(), message.clone()).await,
+                "embed" => commands::hello_embed(ctx.clone(), message.clone()).await,
+                "some" => commands::get_input(ctx.clone(), message.clone()).await,
+                "doc" => commands::get_help(ctx.clone(), message.clone()).await,
+                _ => (),
+            }
         }
     }
 }

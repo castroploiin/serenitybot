@@ -63,14 +63,8 @@ pub async fn get_help(ctx: Context, message: Message) {
     } else {
         message.channel_id.say(&ctx.http, "Something went wrong with input").await.expect("Couldn't send get_help error message");
     }
-
-    // Ok(())
 }
  
-// pub async fn send_error_message(err: &str) {
-//     ctx.
-// }
-
 pub async fn fetch_help_information(command: String) -> Result<String, serde_json::Error> {
     let mut file = File::open("src/docs.json").expect("Could not open docs file");
     let mut contents: String = String::new();
