@@ -1,0 +1,10 @@
+[
+    {
+        "command": "some",
+        "information": "A test command"
+    },
+    {
+        "command": "m",
+        "information": "A test m"
+    }
+]

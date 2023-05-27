@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 serenity = { version = "0.11", default_features = false, features = ["client", "gateway", "rustls_backend", "model", "collector"] }
 tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
+serde_json = { version = "1.0.96" }
+serde = { version = "1.0.163", features = ["derive"] }
