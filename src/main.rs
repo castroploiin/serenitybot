@@ -23,6 +23,7 @@ async fn message(&self, ctx: Context, message: Message) {
                 "embed" => commands::hello_embed(ctx.clone(), message.clone()).await,
                 "some" => commands::get_input(ctx.clone(), message.clone()).await,
                 "doc" => commands::get_help(ctx.clone(), message.clone()).await,
+                "8ball" => commands::eightball(ctx.clone(), message.clone()).await,
                 _ => (),
             }
         }

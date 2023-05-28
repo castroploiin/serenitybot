@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use std::time::Duration;
+use rand::{thread_rng, Rng};
 use serenity::model::prelude::{Message};
 use serenity::prelude::Context;
 use serenity::utils::{MessageBuilder, Color};
@@ -78,4 +79,12 @@ pub async fn fetch_help_information(command: String) -> Result<String, serde_jso
     }
 
     Ok(String::from("Could not find command"))
+}
+
+pub async fn eightball(ctx: Context, message: Message) {
+    const NUM_RESPONSES: usize = 2;
+    const RESPONES: [&str; NUM_RESPONSES] = ["yes", "no"];
+    
+    let random_response: &str = RESPONES[thread_rng().gen_range(0..=NUM_RESPONSES)];
+    message.channel_id.say(&ctx.http, random_response).await.expect("Could not send 8ball message");
 }
