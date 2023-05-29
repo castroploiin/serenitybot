@@ -9,8 +9,8 @@ use serenity::utils::{MessageBuilder, Color};
 use crate::structures::CmdDocumentation;
 
 pub async fn pong(ctx: Context, message: Message) {
-    let mut pong_buildup = MessageBuilder::new();
-    let real_pong = pong_buildup.push("Pong!");
+    let mut pong_buildup: MessageBuilder = MessageBuilder::new();
+    let real_pong: &mut MessageBuilder = pong_buildup.push("Pong!");
     message
         .channel_id
         .say(&ctx.http, real_pong)
@@ -36,7 +36,7 @@ pub async fn get_input(ctx: Context, message: Message) {
     let _ = message.reply(&ctx.http, "Say something").await;
 
     if let Some(answer) = &message.author.await_reply(&ctx).timeout(TIMEOUT_DURATION).await {
-        let user_reply = format!("YOU SAID {}", &answer.content);
+        let user_reply: String = format!("YOU SAID {}", &answer.content);
         answer.reply(&ctx, user_reply).await.expect("Error parroting back user message");
     } else {
         message.channel_id.say(&ctx.http, format!("You did not send a message in {} seconds", TIMEOUT_DURATION.as_secs())).await.expect("Error sending timed out message");
@@ -47,7 +47,7 @@ pub async fn get_help(ctx: Context, message: Message) {
     let _ = message.reply(&ctx.http, "What command do you want help with?").await;
 
     if let Some(answer) = &message.author.await_reply(&ctx).await {
-        let help = fetch_help_information(answer.content.clone()).await;
+        let help: Result<String, serde_json::Error> = fetch_help_information(answer.content.clone()).await;
         match help {
             Ok(command) => {
                 answer.channel_id.send_message(&ctx.http, |msg| {
@@ -67,7 +67,7 @@ pub async fn get_help(ctx: Context, message: Message) {
 }
  
 pub async fn fetch_help_information(command: String) -> Result<String, serde_json::Error> {
-    let mut file = File::open("src/docs.json").expect("Could not open docs file");
+    let mut file: File = File::open("src/docs.json").expect("Could not open docs file");
     let mut contents: String = String::new();
     file.read_to_string(&mut contents).expect("Could not read JSON file");
 
@@ -82,9 +82,9 @@ pub async fn fetch_help_information(command: String) -> Result<String, serde_jso
 }
 
 pub async fn eightball(ctx: Context, message: Message) {
-    const NUM_RESPONSES: usize = 2;
-    const RESPONES: [&str; NUM_RESPONSES] = ["yes", "no"];
+    let responses: Vec<&str> = vec!["yes", "no"];
+    let num_responses: usize = responses.len();
     
-    let random_response: &str = RESPONES[thread_rng().gen_range(0..=NUM_RESPONSES)];
+    let random_response: &str = responses[thread_rng().gen_range(0..num_responses)];
     message.channel_id.say(&ctx.http, random_response).await.expect("Could not send 8ball message");
 }
