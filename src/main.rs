@@ -1,4 +1,4 @@
-use serenity::model::prelude::{Message, Ready, ChannelId};
+use serenity::model::prelude::{Message, Ready, Member};
 use serenity::{async_trait, prelude::*};
 use serenitybot::commands;
 
@@ -6,34 +6,35 @@ struct Handler;
 
 #[async_trait]
 impl EventHandler for Handler {
-    async fn ready(&self, ctx: Context, _: Ready) {
+    async fn ready(&self, _ctx: Context, _: Ready) {
         println!("Online");
+    }
 
-        const GENERAL_CHAT: ChannelId = ChannelId(1110107351287087227);
-        GENERAL_CHAT.say(&ctx.http, "I AM ALIVE").await.expect("WHY CAN'T I SEND A MESSAGE?");
-}
-
-async fn message(&self, ctx: Context, message: Message) {
+    async fn message(&self, ctx: Context, message: Message) {
         const PREFIX: &str = "?";
-
+            
         if message.content.starts_with("?") {
-            let command = &message.content.replace(PREFIX, "")[..];
+            let command = &*message.content.replace(PREFIX, "") ;
             match command {
-                "ping" => commands::pong(ctx.clone(), message.clone()).await,
-                "embed" => commands::hello_embed(ctx.clone(), message.clone()).await,
-                "some" => commands::get_input(ctx.clone(), message.clone()).await,
-                "doc" => commands::get_help(ctx.clone(), message.clone()).await,
-                "8ball" => commands::eightball(ctx.clone(), message.clone()).await,
+                "ping" => commands::pong(ctx, message).await,
+                "embed" => commands::hello_embed(ctx, message).await,
+                "some" => commands::get_input(ctx, message).await,
+                "doc" => commands::get_help(ctx, message).await,
+                "8ball" => commands::eightball(ctx, message).await,
                 _ => (),
             }
         }
     }
+
+    async fn guild_member_addition(&self, ctx: Context, mut new_member: Member) {
+        new_member.add_role(ctx, 1126217605976436777).await.expect(stringify!("Could not add role to member with ID: {}", new_member.user.id));
+    } 
 }
 
 #[tokio::main]
 async fn main() {
     let token = std::env::var("DISCORD_TOKEN").expect("Expected a token");
-    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT;
+    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT | GatewayIntents::GUILD_MEMBERS ;
 
     let mut client = Client::builder(token, intents)
         .event_handler(Handler)
