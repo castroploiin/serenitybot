@@ -154,10 +154,13 @@ pub async fn print_deviants(ctx: Context, channel_id: ChannelId, current_guild: 
     let mut message = MessageBuilder::new();
     message.push("List of deviants: ");
 
+    let mut names_of_deviants = Vec::new();
+
     let list_of_deviants = scan_for_deviants(ctx.clone(), current_guild).await; 
     for deviant in list_of_deviants {
-        message.push(format!("{}, ", deviant.user.name));
+        names_of_deviants.push(deviant.user.name);
     }
 
+    message.push(names_of_deviants.join(", "));
     channel_id.say(ctx, message).await.expect("Could not send deviants list in channel");
 }
