@@ -1,15 +1,9 @@
 use rand::{thread_rng, Rng};
-use serenity::Error;
-use serenity::model::guild;
-use serenity::model::prelude::{Message, Guild, Member, UserId, ChannelId, GuildId};
-use serenity::model::user::User;
-use serenity::prelude::{Context, ModelError};
-use serenity::utils::{Color, MessageBuilder};
-use std::collections::HashMap;
-use std::collections::hash_map::RandomState;
+use serenity::model::prelude::{Message, Member, UserId, ChannelId, GuildId};
+use serenity::prelude::{Context};
+use serenity::utils::{MessageBuilder, Color};
 use std::fs::File;
 use std::io::Read;
-use std::mem;
 use std::time::Duration;
 
 use crate::structures::CmdDocumentation;
@@ -74,14 +68,14 @@ pub async fn get_help(ctx: Context, message: Message) {
 
     if let Some(answer) = &message.author.await_reply(&ctx).await {
         let help: Result<String, serde_json::Error> =
-            fetch_help_information(answer.content.clone()).await;
+            fetch_help_information(&answer.content).await;
         match help {
             Ok(command) => {
                 answer
                     .channel_id
                     .send_message(&ctx.http, |msg| {
                         msg.embed(|e| {
-                            e.title(answer.content.clone());
+                            e.title(&answer.content);
                             e.description(command)
                         })
                     })
@@ -108,7 +102,7 @@ pub async fn get_help(ctx: Context, message: Message) {
     }
 }
 
-pub async fn fetch_help_information(command: String) -> Result<String, serde_json::Error> {
+pub async fn fetch_help_information(command: &String) -> Result<String, serde_json::Error> {
     let mut file: File = File::open("src/docs.json").expect("Could not open docs file");
     let mut contents: String = String::new();
     file.read_to_string(&mut contents)
@@ -116,7 +110,7 @@ pub async fn fetch_help_information(command: String) -> Result<String, serde_jso
 
     let commands_json: Vec<CmdDocumentation> = serde_json::from_str(&contents)?;
     for command_doc in commands_json {
-        if command_doc.command == command {
+        if command_doc.command == *command {
             return Ok(command_doc.information);
         }
     }
@@ -136,12 +130,12 @@ pub async fn eightball(ctx: Context, message: Message) {
         .expect("Could not send 8ball message");
 }
 
-pub async fn scan_for_deviants(ctx: Context, current_guild: GuildId) -> Vec<Member> {
+pub async fn scan_for_deviants(ctx: &Context, current_guild: GuildId) -> Vec<Member> {
     let mut list_of_deviants: Vec<Member> = Vec::new();
-    let members: Vec<Member> = current_guild.clone().to_partial_guild(ctx.clone()).await.expect("Did not get Guild from GuildId").members(ctx.clone(), None, UserId(00000000000000000000)).await.expect("");
+    let members: Vec<Member> = current_guild.to_partial_guild(ctx).await.expect("Did not get Guild from GuildId").members(ctx, None, UserId(00000000000000000000)).await.expect("");
 
     for member in members {
-        let has_role: bool = member.user.has_role(ctx.clone(), current_guild.clone(), 1126217605976436777).await.expect("Could not determine if user has role or not"); 
+        let has_role: &bool = &member.user.has_role(ctx, current_guild, 1126217605976436777).await.expect("Could not determine if user has role or not"); 
         if !has_role {
             list_of_deviants.push(member)
         } 
@@ -154,11 +148,11 @@ pub async fn print_deviants(ctx: Context, channel_id: ChannelId, current_guild: 
     let mut message = MessageBuilder::new();
     message.push("List of deviants: ");
 
-    let mut names_of_deviants = Vec::new();
+    let mut names_of_deviants: Vec<String> = Vec::new();
 
-    let list_of_deviants = scan_for_deviants(ctx.clone(), current_guild).await; 
+    let list_of_deviants = scan_for_deviants(&ctx, current_guild).await; 
     for deviant in list_of_deviants {
-        names_of_deviants.push(deviant.user.name);
+        names_of_deviants.push(deviant.user.name.to_string());
     }
 
     message.push(names_of_deviants.join(", "));

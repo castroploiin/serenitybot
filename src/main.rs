@@ -1,4 +1,3 @@
-use serenity::model::guild;
 use serenity::model::prelude::{Message, Ready, Member};
 use serenity::utils::MessageBuilder;
 use serenity::{async_trait, prelude::*};
@@ -30,7 +29,7 @@ impl EventHandler for Handler {
                         let mut return_message = MessageBuilder::new();
                         return_message.push("Could not get GuildId from Option");
 
-                        message.channel_id.say(ctx, return_message).await.expect("Could not send message about not getting a GuildId from Option");
+                        message.channel_id.say(ctx, return_message).await.expect("Could not send message about not getting a GuildId Option");
                     }
                 },
                 _ => (),
