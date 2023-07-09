@@ -1,9 +1,15 @@
 use rand::{thread_rng, Rng};
-use serenity::model::prelude::Message;
-use serenity::prelude::Context;
+use serenity::Error;
+use serenity::model::guild;
+use serenity::model::prelude::{Message, Guild, Member, UserId, ChannelId, GuildId};
+use serenity::model::user::User;
+use serenity::prelude::{Context, ModelError};
 use serenity::utils::{Color, MessageBuilder};
+use std::collections::HashMap;
+use std::collections::hash_map::RandomState;
 use std::fs::File;
 use std::io::Read;
+use std::mem;
 use std::time::Duration;
 
 use crate::structures::CmdDocumentation;
@@ -24,7 +30,7 @@ pub async fn hello_embed(ctx: Context, message: Message) {
         .send_message(&ctx.http, |msg| {
             msg.embed(|field| {
                 field.title("Hello world");
-                field.color(Color::from_rgb(255, 0, 255))
+                field.color(Color::from_rgb(141, 104, 246))
             })
         })
         .await
@@ -128,4 +134,30 @@ pub async fn eightball(ctx: Context, message: Message) {
         .say(&ctx.http, random_response)
         .await
         .expect("Could not send 8ball message");
+}
+
+pub async fn scan_for_deviants(ctx: Context, current_guild: GuildId) -> Vec<Member> {
+    let mut list_of_deviants: Vec<Member> = Vec::new();
+    let members: Vec<Member> = current_guild.clone().to_partial_guild(ctx.clone()).await.expect("Did not get Guild from GuildId").members(ctx.clone(), None, UserId(00000000000000000000)).await.expect("");
+
+    for member in members {
+        let has_role: bool = member.user.has_role(ctx.clone(), current_guild.clone(), 1126217605976436777).await.expect("Could not determine if user has role or not"); 
+        if !has_role {
+            list_of_deviants.push(member)
+        } 
+    }
+
+    list_of_deviants
+}
+
+pub async fn print_deviants(ctx: Context, channel_id: ChannelId, current_guild: GuildId) {
+    let mut message = MessageBuilder::new();
+    message.push("List of deviants: ");
+
+    let list_of_deviants = scan_for_deviants(ctx.clone(), current_guild).await; 
+    for deviant in list_of_deviants {
+        message.push(format!("{}, ", deviant.user.name));
+    }
+
+    channel_id.say(ctx, message).await.expect("Could not send deviants list in channel");
 }
