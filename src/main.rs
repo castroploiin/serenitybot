@@ -28,9 +28,7 @@ impl EventHandler for Handler {
                 "some" => commands::get_input(&ctx, &message).await,
                 "doc" => commands::get_help(&ctx, &message).await,
                 "8ball" => commands::eightball(&ctx, &message).await,
-                "showdeviants" => {
-                    commands::print_deviants(&ctx, &message.channel_id, &message.guild_id).await
-                }
+                "showdeviants" => commands::print_deviants(&ctx, &message.channel_id, &message.guild_id).await,
                 "fixdeviants" => commands::fix_deviants(&ctx, &message, &message.guild_id).await,
                 _ => (),
             }
